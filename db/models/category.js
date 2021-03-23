@@ -8,5 +8,9 @@ const Category = sequelize.define('Category', {
     allowNull: false,
   },
 })
-Category.hasOne(post)
+Category.hasMany(post, {
+  foreignKey: {
+    allowNull: false,
+  },
+})
 module.exports = Category
