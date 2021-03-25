@@ -13,9 +13,8 @@ server.use(express.json())
 server.use('/api', postRouter)
 
 server.use((error, req, res, next) => {
-  const statusCode = error.statusCode || 500
-
-  res.status(statusCode).json({ error: error.message })
+  const { statusCode, message } = error
+  res.status(statusCode).json({ error: message })
 })
 
 server.listen(PORT, async () => {
