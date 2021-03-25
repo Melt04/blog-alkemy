@@ -1,6 +1,6 @@
 const router = require('express').Router()
 
-const createError = require('../util/index')
+const { createError, validateImg } = require('../util/index')
 
 const {
   createPost,
@@ -9,7 +9,7 @@ const {
   deletePostById,
   updatePostById,
 } = require('../controllers/posts')
-router.get('/posts', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const posts = await getAllPost()
     res.status(200).json(posts)
@@ -17,20 +17,24 @@ router.get('/posts', async (req, res, next) => {
     next(createError(e.message))
   }
 })
-router.post('/posts', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   const { newPost } = req.body
   try {
-    const post = await createPost(newPost)
-    if (post) {
-      return res.status(201).json(post)
+    if (newPost.img && validateImg(newPost.img)) {
+      const post = await createPost(newPost)
+      if (post) {
+        return res.status(201).json(post)
+      } else {
+        next(createError('Could not created Post.Try again Later'))
+      }
     } else {
-      next(createError('Could not created Post.Try again Later'))
+      return next(createError('Img field  is not valid', 400))
     }
   } catch (e) {
     next(createError(e.message))
   }
 })
-router.get('/posts/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   const { id } = req.params
   try {
     const post = await getPostById(id)
@@ -44,7 +48,7 @@ router.get('/posts/:id', async (req, res, next) => {
   }
 })
 
-router.delete('/posts/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   const { id } = req.params
   try {
     const post = await deletePostById(id)
@@ -57,16 +61,20 @@ router.delete('/posts/:id', async (req, res, next) => {
     next(createError(e.message, 404))
   }
 })
-router.patch('/posts/:id', async (req, res, next) => {
+router.patch('/:id', async (req, res, next) => {
   const { id } = req.params
-  const { newPost } = req.body
+  const { updatedPost } = req.body
   try {
-    const [updatedPost] = await updatePostById(id, newPost)
+    if (updatedPost.img && validateImg(updatedPost.img)) {
+      const [post] = await updatePostById(id, updatedPost)
 
-    if (updatedPost > 0) {
-      return res.status(200).json({ message: 'Updated succesfully' })
+      if (post > 0) {
+        return res.status(200).json({ message: 'Updated succesfully' })
+      }
+      return next(createError('Could not updated Post', 404))
+    } else {
+      return next(createError('Img field is not valid', 400))
     }
-    next(createError('Post not found', 404))
   } catch (e) {
     next(createError(e.message))
   }

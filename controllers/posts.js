@@ -17,8 +17,8 @@ const getPostById = (id) => {
 const deletePostById = (id) => {
   return post.destroy({ where: { id } })
 }
-const updatePostById = (id, newPost) => {
-  return post.update({ ...newPost }, { where: { id } })
+const updatePostById = (id, updatedPost) => {
+  return post.update({ ...updatedPost }, { where: { id } })
 }
 module.exports = {
   getAllPost,

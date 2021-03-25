@@ -6,11 +6,13 @@ const sequelize = require('./db/index')
 const post = require('./db/models/post')
 const category = require('./db/models/category')
 const postRouter = require('./routes/posts')
+const categoryRouter = require('./routes/category')
 
 const PORT = process.env.PORT || 3001
 
 server.use(express.json())
-server.use('/api', postRouter)
+server.use('/api/posts', postRouter)
+server.use('/api/categories', categoryRouter)
 
 server.use((error, req, res, next) => {
   const { statusCode, message } = error

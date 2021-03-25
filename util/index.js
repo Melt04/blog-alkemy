@@ -3,5 +3,10 @@ const createError = (message, statusCode = 500) => {
   error.statusCode = statusCode
   return error
 }
+const validateImg = (text) => {
+  const reg = new RegExp(/\.(jpg|gif|png)$/)
 
-module.exports = createError
+  return text.match(reg) !== null
+}
+
+module.exports = { createError, validateImg }
