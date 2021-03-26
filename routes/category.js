@@ -5,7 +5,7 @@ const {
 } = require('../controllers/categories')
 
 const { createError } = require('../util/index')
-
+const { validateCategory } = require('../util/validate')
 router.get('/', async (req, res, next) => {
   try {
     const categories = await getAllCategories()
@@ -17,14 +17,17 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   const { newCatogory } = req.body
   try {
-    const category = await createCategory(newCatogory)
-    if (category) {
-      return res.status(200).json({ message: 'Category created succsefully' })
+    if (validateCategory(newCatogory)) {
+      const category = await createCategory(newCatogory)
+      if (category) {
+        return res.status(200).json({ message: 'Category created succsefully' })
+      } else {
+        return next(createError('Could not created Category.Try again later'))
+      }
     } else {
-      return next(createError('Could not created Category.Try again later'))
+      return next(createError('Missing fields or bad format', 400))
     }
   } catch (e) {
-    console.log(e.message)
     return next(createError('Something  went wrong'))
   }
 })
