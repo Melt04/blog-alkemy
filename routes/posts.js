@@ -1,6 +1,7 @@
 const router = require('express').Router()
 
-const { createError, validateImg } = require('../util/index')
+const { createError } = require('../util/index')
+const { validatePost, validteUpdatedPost } = require('../util/validate')
 
 const {
   createPost,
@@ -20,15 +21,15 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   const { newPost } = req.body
   try {
-    if (newPost.img && validateImg(newPost.img)) {
+    if (validatePost(newPost)) {
       const post = await createPost(newPost)
       if (post) {
         return res.status(201).json(post)
       } else {
-        next(createError('Could not created Post.Try again Later'))
+        return next(createError('Could not created Post.Try again Later'))
       }
     } else {
-      return next(createError('Img field  is not valid', 400))
+      return next(createError('Missing fields or bad format'), 400)
     }
   } catch (e) {
     next(createError(e.message))
@@ -65,15 +66,14 @@ router.patch('/:id', async (req, res, next) => {
   const { id } = req.params
   const { updatedPost } = req.body
   try {
-    if (updatedPost.img && validateImg(updatedPost.img)) {
+    if (validteUpdatedPost(updatedPost)) {
       const [post] = await updatePostById(id, updatedPost)
-
       if (post > 0) {
         return res.status(200).json({ message: 'Updated succesfully' })
       }
       return next(createError('Could not updated Post', 404))
     } else {
-      return next(createError('Img field is not valid', 400))
+      return next(createError('Missing fields or bad format', 400))
     }
   } catch (e) {
     next(createError(e.message))
